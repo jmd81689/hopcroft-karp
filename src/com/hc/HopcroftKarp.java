@@ -5,58 +5,77 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-public class HopcroftKarp 
+/**
+ * This class consists of an implementation of the Hopcroft Karp algorithm to obtain the
+ * maximum matching of a bipartite graph.  According to Konigs Theorem, the maximum matching
+ * is equivalent to the minimum vertex cover.
+ * 
+ * Forked from https://github.com/rihuber/ and modified to decouple from other project classes
+ * and implement generics for increased modularity.
+ * 
+ * @author Jonathan DeStefano
+ * @version 1.0
+ */
+public class HopcroftKarp<T>
 {
+
+	private LinkedList<T> srcNodes, nodeUnion;
+	private LinkedList<Edge<T>> edges;
+	//private Vertex nullVertex;
+	private T nullVertex;
 	
-	private LinkedList<Vertex> srcNodes, nodeUnion;
-	private LinkedList<Edge> edges;
-	private Vertex nullVertex;
-	
-	private HashMap<Vertex, Vertex> pairs;
-	private HashMap<Vertex, Integer> distances;
+	private HashMap<T, T> pairs;
+	private HashMap<T, Integer> distances;
 	private int matching;
-	private LinkedList<Vertex> queue;
-	
-	public HopcroftKarp(LinkedList<Vertex> srcNodes, LinkedList<Vertex> destNodes, LinkedList<Edge> edges)
+	private LinkedList<T> queue;
+
+	public HopcroftKarp(LinkedList<T> srcNodes, LinkedList<T> destNodes, LinkedList<Edge<T>> edges)
 	{
 		this.srcNodes = srcNodes;
 		this.edges = edges;
-		nullVertex = new NullVertex();
-
-		nodeUnion = new LinkedList<Vertex>();
+		//nullVertex = new NullVertex();
+		nullVertex = null;
+		
+		nodeUnion = new LinkedList<T>();
 		nodeUnion.addAll(srcNodes);
 		nodeUnion.addAll(destNodes);
 		nodeUnion.add(nullVertex);
-		
-		pairs = new HashMap<Vertex, Vertex>();
-		distances = new HashMap<Vertex, Integer>();
-		
-		queue = new LinkedList<Vertex>();
-		
+
+		pairs = new HashMap<T, T>();
+		distances = new HashMap<T, Integer>();
+
+		queue = new LinkedList<T>();
+
 		runCalculation();
 	}
-	
+
+	/**
+	 * Gets the result of the maximum matching calculation performed runCalculation() which is
+	 * stored as a member variable.
+	 * 
+	 * @return matching
+	 */
 	public int getMatchingEdgesCount()
 	{
 		return matching;
 	}
-	
-	public HashMap<Vertex, Vertex> getPairs()
+
+	public HashMap<T, T> getPairs()
 	{
 		return pairs;
 	}
-	
+
 	private void runCalculation() 
 	{
-		for(Vertex v : nodeUnion)
+		for(T v : nodeUnion)
 		{
 			pairs.put(v, nullVertex);
 		}
 		matching = 0;
-		
+
 		while(breathFirstSearch() == true)
 		{
-			for(Vertex v : srcNodes)
+			for(T v : srcNodes)
 			{
 				if(pairs.get(v) == nullVertex)
 				{
@@ -65,16 +84,17 @@ public class HopcroftKarp
 				}
 			}
 		}
-		
+
 		// cleanup
 		// Remove entries with key nullVertex
 		pairs.remove(nullVertex);
 		// Remove entries with value nullVertex and remove entries from dest to src		
-		Iterator<Entry<Vertex, Vertex>> iterator = pairs.entrySet().iterator();
+		Iterator<Entry<T, T>> iterator = pairs.entrySet().iterator();
 		while(iterator.hasNext())
 		{
-			Entry<Vertex, Vertex> currentEntry = iterator.next();
-			if(currentEntry.getValue() == nullVertex || currentEntry.getValue().isSource())
+			Entry<T, T> currentEntry = iterator.next();
+			//I have no idea what to do with the line below, commenting out the OR
+			if(currentEntry.getValue() == nullVertex) //|| currentEntry.getValue().isSource())
 			{
 				iterator.remove();
 				continue;
@@ -82,11 +102,11 @@ public class HopcroftKarp
 		}
 	}
 
-	private boolean depthFirstSearch(Vertex v) 
+	private boolean depthFirstSearch(T v) 
 	{
 		if(v != nullVertex)
 		{
-			for(Vertex u : getAdj(v))
+			for(T u : getAdj(v))
 			{
 				if(distances.get(pairs.get(u)) == distances.get(v)+1)
 				{
@@ -106,7 +126,7 @@ public class HopcroftKarp
 
 	private boolean breathFirstSearch() 
 	{
-		for(Vertex v : srcNodes)
+		for(T v : srcNodes)
 		{
 			if(pairs.get(v) == nullVertex)
 			{
@@ -116,13 +136,13 @@ public class HopcroftKarp
 			else
 				distances.put(v, -1);
 		}
-		
+
 		distances.put(nullVertex, -1);
-		
+
 		while(!queue.isEmpty())
 		{
-			Vertex v = queue.poll();
-			for(Vertex u : getAdj(v))
+			T v = queue.poll();
+			for(T u : getAdj(v))
 			{
 				if(distances.get(pairs.get(u)) == -1)
 				{
@@ -131,17 +151,23 @@ public class HopcroftKarp
 				}
 			}
 		}
-		
+
 		return (distances.get(nullVertex) != -1);
 	}
 
-	private LinkedList<Vertex> getAdj(Vertex v) 
+	/**
+	 * Gets the adjacent vertex to the object it is called on.
+	 * 
+	 * @param v
+	 * @return result
+	 */
+	private LinkedList<T> getAdj(T v) 
 	{
-		LinkedList<Vertex> result = new LinkedList<Vertex>();
-		for(Edge e : edges)
+		LinkedList<T> result = new LinkedList<T>();
+		for(Edge<T> e : edges)
 		{
 			if(e.isIncident(v))
-				result.add(e.getAdj(v));
+				result.add((T) e.getAdj(v));
 		}
 		return result;
 	}
