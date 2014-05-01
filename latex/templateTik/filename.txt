@@ -1,2 +1,0 @@
-This is an embedded 
-text piece in verbatim mode.
