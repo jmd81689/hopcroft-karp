@@ -1,31 +1,47 @@
 package com.hc;
 
-public class Edge 
-{
-	
-	private Vertex vertex1, vertex2;
-	
-	public Edge(Vertex vertex1, Vertex vertex2)
-	{
-		this.vertex1 = vertex1;
-		this.vertex2 = vertex2;
-	}
+public class Edge<T> {
 
-	public boolean isIncident(Vertex v) 
-	{
-		return (v == vertex1 || v == vertex2);
-	}
-
-	public Vertex getAdj(Vertex v) 
-	{
-		if(v == vertex1)
-			return vertex2;
-		return vertex1;
+	private T a;
+	private T b;
+	
+	public Edge(){
+		
 	}
 	
-	public String toString()
-	{
-		return vertex1 + "->" + vertex2;
+	public Edge(T a, T b){
+		this.a = a;
+		this.b = b;
+	}
+	
+	public T getA() {
+		return a;
 	}
 
+	public void setA(T a) {
+		this.a = a;
+	}
+
+	public T getB() {
+		return b;
+	}
+
+	public void setB(T b) {
+		this.b = b;
+	}
+
+	public boolean isIncident(T v) 
+	{
+		return (v == a || v == b);
+	}
+
+	public T getAdj(T v) 
+	{
+		if(v == a)
+			return b;
+		return a;
+	}
+	public String toString(){
+		return a.toString() + " --> " + b.toString();
+	}
 }
