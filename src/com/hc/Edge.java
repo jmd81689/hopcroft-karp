@@ -1,4 +1,4 @@
-package ch.rihuber.noc.matching;
+package com.hc;
 
 public class Edge 
 {
